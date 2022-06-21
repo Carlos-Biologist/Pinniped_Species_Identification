@@ -17,3 +17,9 @@ Das 12 imagens de A. gazella (rótulo 2) o modelo acertou novamente 10, classifi
 O modelo treinado esta sendo implantado em um aplicativo interativo para permitir que os usuários possam compartilhar suas imagens e assim, identificar suas próprias fotos de pinípedes.
 
 O objetivo final deste projeto é treinar o modelo para classificar corretamente todas as 8 espécies do gênero Arctocephalus (lobos-marinho).
+
+Referências:
+
+SIMONYAN, K.; ZISSERMAN, A. (2014) Very deep convolutional networks for 
+large-scale image recognition. arXiv preprint arXiv: 1409.1556.
+
