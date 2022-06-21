@@ -18,7 +18,7 @@ O modelo treinado esta sendo implantado em um aplicativo interativo para permiti
 
 O objetivo final deste projeto é treinar o modelo para classificar corretamente todas as 8 espécies do gênero Arctocephalus (lobos-marinho).
 
-Referências:
+# Referências:
 
 SIMONYAN, K.; ZISSERMAN, A. (2014) Very deep convolutional networks for 
 large-scale image recognition. arXiv preprint arXiv: 1409.1556.
