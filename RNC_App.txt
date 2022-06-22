@@ -1,0 +1,123 @@
+## Treinamento Modelo APP
+
+# Importar Bibliotecas
+from keras.layers import Input, Lambda, Dense, Flatten
+from keras.models import Model
+from keras.applications.vgg16 import VGG16
+from keras.applications.vgg16 import preprocess_input
+from keras.preprocessing import image
+from keras.preprocessing.image import ImageDataGenerator
+from keras.models import Sequential
+import numpy as np
+from glob import glob
+import matplotlib.pyplot as plt
+
+# Definir tamanho imagem
+IMAGE_SIZE = [100, 100]
+
+# Abrir diretórios Treino e Teste
+train_directory='/content/drive/MyDrive/app_pinnipedia/train'
+test_directory='/content/drive/MyDrive/app_pinnipedia/test'
+
+# Add camada preprocessamento para VGG
+vgg = VGG16(input_shape=IMAGE_SIZE + [3], weights='imagenet', include_top=False)
+
+# Não treine pesos existentes
+for layer in vgg.layers:
+  layer.trainable = False
+
+# Conferir número de classes
+folders = glob('/content/drive/MyDrive/app_pinnipedia/train/*')
+len(folders)
+
+# Camadas RNA (classificação) - Você pode adicionar mais camadas
+x = Flatten()(vgg.output)
+x = Dense(256, activation='relu')(x)
+x = Dense(128, activation='relu')(x)
+prediction = Dense(len(folders), activation='softmax')(x)
+
+# Criar objeto modelo
+model = Model(inputs=vgg.input, outputs=prediction)
+
+# Visualizar a estrutura do modelo
+model.summary()
+
+model.compile(
+  loss='categorical_crossentropy',
+  optimizer='rmsprop',
+  metrics=['accuracy']
+
+from keras.preprocessing.image import ImageDataGenerator
+
+train_datagen = ImageDataGenerator(rescale = 1./255,
+                                   shear_range = 0.2,
+                                   zoom_range = 0.2,
+                                   horizontal_flip = True)
+
+test_datagen = ImageDataGenerator(rescale = 1./255)
+
+training_set = train_datagen.flow_from_directory(train_directory,
+                                                 target_size = (100, 100),
+                                                 batch_size = 32,
+                                                 class_mode = 'categorical')
+
+test_set = test_datagen.flow_from_directory(test_directory,
+                                            target_size = (100, 100),
+                                            batch_size = 32,
+                                            class_mode = 'categorical')
+
+r = model.fit_generator(
+  training_set,
+  validation_data=test_set,
+  epochs=150,
+  steps_per_epoch=len(training_set),
+  validation_steps=len(test_set)
+)
+
+# Gráfico loss
+plt.plot(r.history['loss'], label='train loss')
+plt.plot(r.history['val_loss'], label='val loss')
+plt.legend()
+plt.show()
+
+# Gráfico acurácia
+plt.plot(r.history['accuracy'], label='train acc')
+plt.plot(r.history['val_accuracy'], label='val acc')
+plt.legend()
+plt.show()
+
+# Salvar modelo
+model.save('/content/drive/MyDrive/pinnipedia4.h5')
+
+# Abrir modelo
+from keras.models import load_model
+from keras.preprocessing.image import load_img,img_to_array
+model1 = load_model('/content/drive/MyDrive/pinnipedia4.h5',compile=False)  
+
+# Testar modelo em novas imagens
+
+lab = training_set.class_indices
+lab={k:v for v,k in lab.items()}
+
+def output(location):
+    img=load_img(location,target_size=(100,100,3))
+    img=img_to_array(img)
+    img=img/255
+    img=np.expand_dims(img,[0])
+    answer=model1.predict(img)
+    y_class = answer.argmax(axis=-1)
+    y = " ".join(str(x) for x in y_class)
+    y = int(y)
+    res = lab[y]
+    return res
+
+img='/content/drive/MyDrive/teste_at.jpg'
+pic=load_img('/content/drive/MyDrive/teste_at.jpg',target_size=(100,100,3))
+plt.imshow(pic)
+output(img)
+
+# Ver versão das bibliotecas - Importante para rodar o App
+import tensorflow as tf
+import keras as k
+print(tf.__version__)
+print(k.__version__)
